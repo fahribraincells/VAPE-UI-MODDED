@@ -1216,7 +1216,8 @@ function lib.getHiddenConnection(b,get)
 end
 
 function lib:notify(str,time)
-	Notif:NotifyUser(str,time)
+	--Notif:NotifyUser(str,time)
+	print(str .. " | " .. tostring(time) .. "s")
 end
 
 local function getSmaller(a,b,notLast)
