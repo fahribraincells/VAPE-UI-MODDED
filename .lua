@@ -474,6 +474,75 @@ function lib.randomString()
 	return table.concat(array)
 end
 
+local bv = Instance.new("BodyVelocity")
+bv.Name = lib.randomString()
+bv.Parent = nil
+bv.MaxForce = Vector3.new(0,0,0)
+bv.Velocity = Vector3.new(0,0,0)
+
+local bg = Instance.new("BodyGyro")
+bg.Name = lib.randomString()
+bg.Parent = nil
+bg.MaxTorque = Vector3.new(9e9,9e9,9e9)
+bg.P = 1000
+bg.D = 50
+
+local AntiIndex1
+local AntiNamecall1
+local AntiIndex2
+local AntiNamecall2
+AntiIndex1 = hookmetamethod(bv,"__index",newcclosure(function(self,...) -- Prevent indexing (checking properties, name, etc)
+	if not checkcaller() then
+		if self == bv then
+			local s,e = pcall(AntiIndex1,self,...)
+			if not s then
+				return error(e)
+			end
+			return
+		end
+	end
+	return AntiIndex1(self,...)
+end))
+       
+AntiNamecall1 = hookmetamethod(bv,"__namecall",newcclosure(function(self,...) -- Prevent namecalling (functions)
+	if not checkcaller() then
+		if self == bv then
+			local s,e = pcall(AntiNamecall1,self,...)
+            if not s then
+				return error(e)
+			end
+			return
+		end
+	end
+	return AntiNamecall1(self,...)
+end))
+
+AntiIndex2 = hookmetamethod(bg,"__index",newcclosure(function(self,...) -- Prevent indexing (checking properties, name, etc)
+	if not checkcaller() then
+		if self == bg then
+			local s,e = pcall(AntiIndex2,self,...)
+			if not s then
+				return error(e)
+			end
+			return
+		end
+	end
+	return AntiIndex2(self,...)
+end))
+       
+AntiNamecall2 = hookmetamethod(bg,"__namecall",newcclosure(function(self,...) -- Prevent namecalling (functions)
+	if not checkcaller() then
+		if self == bg then
+			local s,e = pcall(AntiNamecall2,self,...)
+            if not s then
+				return error(e)
+			end
+			return
+		end
+	end
+	return AntiNamecall2(self,...)
+end))
+
 function lib.Interface(str)
 	if str == "hide" then
 		if typeof(get_hidden_gui) ~= "nil" or typeof(gethui) ~= "nil" then
@@ -946,8 +1015,8 @@ end
 function lib:unmobilefly()
 	pcall(function()
 		FLYING = false
-		LocalPlayer.Character.HumanoidRootPart:FindFirstChild(gyroHandlerName):Destroy()
-		LocalPlayer.Character.HumanoidRootPart:FindFirstChild(velocityHandlerName):Destroy()
+		bg.Parent = nil
+		bv.Parent = nil
 		LocalPlayer.Character.Humanoid.PlatformStand = false
 		mfly1:Disconnect()
 		mfly2:Disconnect()
@@ -963,14 +1032,12 @@ function lib:mobilefly(vfly) -- skidded from infinite yield, thx Akbar for skid 
 	local v3zero = Vector3.new(0,0,0)
 	local v3inf = Vector3.new(9e9,9e9,9e9)
 
-	local bv = Instance.new("BodyVelocity")
-	bv.Name = velocityHandlerName
+	bv.Name = lib.randomString()
 	bv.Parent = LocalPlayer.Character.HumanoidRootPart
 	bv.MaxForce = Vector3.new(0,0,0)
 	bv.Velocity = Vector3.new(0,0,0)
 
-	local bg = Instance.new("BodyGyro")
-	bg.Name = gyroHandlerName
+	bg.Name = lib.randomString()
 	bg.Parent = LocalPlayer.Character.HumanoidRootPart
 	bg.MaxTorque = Vector3.new(9e9,9e9,9e9)
 	bg.P = 1000
@@ -1032,15 +1099,13 @@ local function FLY(vfly,tweenbool,tweenspeed)
 
 	local function FLY()
 		FLYING = true
-		local BG = Instance.new('BodyGyro')
-		local BV = Instance.new('BodyVelocity')
-		BG.P = 9e4
-		BG.Parent = T
-		BV.Parent = T
-		BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-		BG.cframe = T.CFrame
-		BV.velocity = Vector3.new(0, 0, 0)
-		BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
+		bg.P = 9e4
+		bg.Parent = T
+		bv.Parent = T
+		bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+		bv.cframe = T.CFrame
+		bv.velocity = Vector3.new(0, 0, 0)
+		bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
 		task.spawn(function()
 			repeat wait()
 				if vfly == false and LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then -- not
@@ -1062,33 +1127,33 @@ local function FLY(vfly,tweenbool,tweenspeed)
 				end
 				if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 or (CONTROL.Q + CONTROL.E) ~= 0 then
 					if tweenbool == false then
-						BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+						bv.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
 					else
-						TweenService:Create(BV,TweenInfo.new(tweenspeed,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R,(CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2,0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED}):Play()
+						TweenService:Create(bv,TweenInfo.new(tweenspeed,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R,(CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2,0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED}):Play()
 					end
 					lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
 				elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and (CONTROL.Q + CONTROL.E) == 0 and SPEED ~= 0 then
 					if tweenbool == false then
-						BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
+						bv.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
 					else 
-						TweenService:Create(BV,TweenInfo.new(tweenspeed,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R,(lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2,0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED}):Play()
+						TweenService:Create(bv,TweenInfo.new(tweenspeed,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R,(lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2,0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED}):Play()
 					end
 				else
-					BV.velocity = Vector3.new(0,0,0)
+					bv.velocity = Vector3.new(0,0,0)
 					--TweenService:Create(BV,TweenInfo.new(0.5,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{velocity = Vector3.new(0,0,0)}):Play()
 				end
 				--BG.cframe = workspace.CurrentCamera.CoordinateFrame
 				if tweenbool == false then
-					TweenService:Create(BG,TweenInfo.new(0.01,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{cframe = workspace.CurrentCamera.CoordinateFrame}):Play()
+					TweenService:Create(bg,TweenInfo.new(0.01,Enum.EasingStyle.Linear,Enum.EasingDirection.Out,0,false,0),{cframe = workspace.CurrentCamera.CoordinateFrame}):Play()
 				else
-					BG.cframe = workspace.CurrentCamera.CoordinateFrame
+					bg.cframe = workspace.CurrentCamera.CoordinateFrame
 				end
 			until FLYING == false -- not
 			CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
 			lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
 			SPEED = 0
-			BG:Destroy()
-			BV:Destroy()
+			bg.Parent = nil
+			bv.Parent = nil
 			if LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
 				LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
 			end
