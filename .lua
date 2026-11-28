@@ -1059,26 +1059,26 @@ function lib:mobilefly(vfly) -- skidded from infinite yield, thx Akbar for skid 
 	end)
 
 	mfly2 = RunService.RenderStepped:Connect(function()
-		if LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid") and LocalPlayer.Character.HumanoidRootPart and LocalPlayer.Character.HumanoidRootPart:FindFirstChild(velocityHandlerName) and LocalPlayer.Character.HumanoidRootPart:FindFirstChild(gyroHandlerName) then
-			LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].MaxForce = Vector3.new(9e9,9e9,9e9)
-			LocalPlayer.Character.HumanoidRootPart[gyroHandlerName].MaxTorque = Vector3.new(9e9,9e9,9e9)
+		if LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid") and LocalPlayer.Character.HumanoidRootPart and LocalPlayer.Character.HumanoidRootPart:FindFirstChild(bv.Name) and LocalPlayer.Character.HumanoidRootPart:FindFirstChild(bg.Name) then
+			bv.MaxForce = Vector3.new(9e9,9e9,9e9)
+			bg.MaxTorque = Vector3.new(9e9,9e9,9e9)
 			if vfly == false then
 				LocalPlayer.Character.Humanoid.PlatformStand = true
 			end
-			LocalPlayer.Character.HumanoidRootPart[gyroHandlerName].CFrame = workspace.CurrentCamera.CoordinateFrame
-			LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity = Vector3.new()
+			bg.CFrame = workspace.CurrentCamera.CoordinateFrame
+			bv.Velocity = Vector3.new()
 
 			if controlModule:GetMoveVector().X > 0 then
-				LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity = LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity + workspace.CurrentCamera.CFrame.RightVector * (controlModule:GetMoveVector().X * ((vfly and vflyspeed or mobileflyspeed) * 50))
+				bv.Velocity = bv.Velocity + workspace.CurrentCamera.CFrame.RightVector * (controlModule:GetMoveVector().X * ((vfly and vflyspeed or mobileflyspeed) * 50))
 			end
 			if controlModule:GetMoveVector().X < 0 then
-				LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity = LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity + workspace.CurrentCamera.CFrame.RightVector * (controlModule:GetMoveVector().X * ((vfly and vflyspeed or mobileflyspeed) * 50))
+				bv.Velocity = bv.Velocity + workspace.CurrentCamera.CFrame.RightVector * (controlModule:GetMoveVector().X * ((vfly and vflyspeed or mobileflyspeed) * 50))
 			end
 			if controlModule:GetMoveVector().Z > 0 then
-				LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity = LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity - workspace.CurrentCamera.CFrame.LookVector * (controlModule:GetMoveVector().Z * ((vfly and vflyspeed or mobileflyspeed) * 50))
+				bv.Velocity = bv.Velocity - workspace.CurrentCamera.CFrame.LookVector * (controlModule:GetMoveVector().Z * ((vfly and vflyspeed or mobileflyspeed) * 50))
 			end
 			if controlModule:GetMoveVector().Z < 0 then
-				LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity = LocalPlayer.Character.HumanoidRootPart[velocityHandlerName].Velocity - workspace.CurrentCamera.CFrame.LookVector * (controlModule:GetMoveVector().Z * ((vfly and vflyspeed or mobileflyspeed) * 50))
+				bv.Velocity = bv.Velocity - workspace.CurrentCamera.CFrame.LookVector * (controlModule:GetMoveVector().Z * ((vfly and vflyspeed or mobileflyspeed) * 50))
 			end
 		end
 	end)
